@@ -40,6 +40,8 @@
 #include <vtkOrientedImageData.h>
 #include <vtkSegment.h>
 
+#include <iostream>
+#include <stdio.h>
 //----------------------------------------------------------------------------
 vtkSegmentationConverterRuleNewMacro(vtkFractionalLabelmapToClosedSurfaceConversionRule);
 
@@ -178,6 +180,22 @@ bool vtkFractionalLabelmapToClosedSurfaceConversionRule::Convert(vtkSegment* seg
   imageResize->SetMagnificationFactors(fractionalOversamplingFactor, fractionalOversamplingFactor, fractionalOversamplingFactor);
   imageResize->InterpolateOn();
 
+  //// Run surface nets
+//vtkSmartPointer<vtkSurfaceNets3D> surfaceNets = vtkSmartPointer<vtkSurfaceNets3D>::New();
+//surfaceNets->SetInputConnection(imageResize->GetOutputPort());
+//surfaceNets->SetNumberOfContours(1);
+//surfaceNets->SetValue(0, (fractionalThreshold * (maximumValue - minimumValue)) + minimumValue);
+//
+//try
+//{
+//  surfaceNets->Update();
+//}
+//catch (...)
+//{
+//  vtkErrorMacro("Convert: Error while running marching cubes!");
+//  return false;
+//}
+
   // Run marching cubes
   vtkSmartPointer<vtkFlyingEdges3D> marchingCubes = vtkSmartPointer<vtkFlyingEdges3D>::New();
   marchingCubes->SetInputConnection(imageResize->GetOutputPort());
@@ -186,6 +204,13 @@ bool vtkFractionalLabelmapToClosedSurfaceConversionRule::Convert(vtkSegment* seg
   marchingCubes->ComputeScalarsOff();
   marchingCubes->ComputeGradientsOff();
   marchingCubes->ComputeNormalsOff();
+
+  std::cout << "Running marching cubes" << std::endl;
+  vtkWarningMacro("Running marching cubes Warning");
+  vtkDebugMacro("Running marching cubes Debug");
+  vtkErrorMacro("Running marching cubes Error");
+  std::cerr << "Running marching cubes Cerr Error" << std::endl;
+
   try
     {
     marchingCubes->Update();
@@ -281,7 +306,7 @@ bool vtkFractionalLabelmapToClosedSurfaceConversionRule::Convert(vtkSegment* seg
     fractionalLabelMap->Delete();
     }
 
-  return true;
+  return false;
 }
 
 //----------------------------------------------------------------------------
